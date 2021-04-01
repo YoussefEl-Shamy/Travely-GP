@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "551253101281",
+    "project_id": "travely-78048",
+    "storage_bucket": "travely-78048.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:551253101281:android:6a7115f3630de7d77785a0",
+        "android_client_info": {
+          "package_name": "com.example.loggg"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "551253101281-par3112vp00kli3v7j5iuo4ojcqqa7b1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChe1hbKXn2Yzo0j86-veVZ0UNQsF8PXr0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "551253101281-par3112vp00kli3v7j5iuo4ojcqqa7b1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:551253101281:android:eccc77b53095177a7785a0",
+        "android_client_info": {
+          "package_name": "com.example.travely"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "551253101281-par3112vp00kli3v7j5iuo4ojcqqa7b1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChe1hbKXn2Yzo0j86-veVZ0UNQsF8PXr0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "551253101281-par3112vp00kli3v7j5iuo4ojcqqa7b1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
