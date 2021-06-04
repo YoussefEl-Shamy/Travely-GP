@@ -11,6 +11,7 @@ import 'package:travely/Auth/auth_screen.dart';
 import 'package:travely/Providers/searching_provider.dart';
 import 'package:travely/Screens/loading.dart';
 import 'package:travely/Service%20provider/add_package.dart';
+import 'package:travely/Service%20provider/service_provider_profile.dart';
 
 class SPHomePage extends StatefulWidget {
   final checker;
@@ -31,13 +32,13 @@ class _SPHomePageState extends State<SPHomePage> {
 
   deleteOldPackage() async {
     deleteCounter++;
-    if(checker == true){
+    if (checker == true) {
       await FirebaseFirestore.instance
           .collection('packages')
           .where("organizerId", isEqualTo: userId)
           .get()
           .then(
-            (QuerySnapshot snapshot) {
+        (QuerySnapshot snapshot) {
           List<DocumentSnapshot> docs = snapshot.docs;
           for (int i = 0; i < docs.length; i++) {
             var docEndDate = docs[i]['endDate'];
@@ -56,12 +57,10 @@ class _SPHomePageState extends State<SPHomePage> {
         },
       );
     }
-    if(deleteCounter < 2){
+    if (deleteCounter < 2) {
       checkCollection();
     }
-    setState(() {
-
-    });
+    setState(() {});
   }
 
   setRememberMe() async {
@@ -94,6 +93,36 @@ class _SPHomePageState extends State<SPHomePage> {
         });
         deleteOldPackage();
       }
+    });
+  }
+
+  goToProfile(){
+    Navigator.of(context).push(MaterialPageRoute(builder: (_){
+      return ServiceProviderProfile();
+    }));
+  }
+
+  goToAddPackage(){
+    Navigator.of(context).push(MaterialPageRoute(builder: (_){
+      return AddPackage();
+    }));
+  }
+
+  logout(){
+    setRememberMe().then((_) {
+      clearSharedPrefs().then((_) {
+        FirebaseAuth.instance.signOut();
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => AuthScreen(),
+          ),
+              (route) => false,
+        );
+        setState(() {
+          _isLoading = false;
+        });
+      });
     });
   }
 
@@ -169,14 +198,46 @@ class _SPHomePageState extends State<SPHomePage> {
                           )
                         : Container(),
                 sProviderFalse.isSearching == false
-                    ? IconButton(
-                        onPressed: () {
-                          Navigator.of(context)
-                              .push(MaterialPageRoute(builder: (_) {
-                            return AddPackage();
-                          }));
+                    ? PopupMenuButton(
+                        onSelected: (value) {
+                          switch(value){
+                            case 0:
+                              goToProfile();
+                              break;
+
+                            case 1:
+                              goToAddPackage();
+                              break;
+
+                            case 2:
+                              logout();
+                              break;
+                          }
                         },
-                        icon: Icon(Icons.add))
+                        itemBuilder: (context) => [
+                          PopupMenuItem(
+                            value: 0,
+                            child: ListTile(
+                              title: Text("My Profile"),
+                              leading: Icon(Icons.person),
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: 1,
+                            child: ListTile(
+                              title: Text("Add Package"),
+                              leading: Icon(Icons.add),
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: 2,
+                            child: ListTile(
+                              title: Text("Logout"),
+                              leading: Icon(Icons.logout),
+                            ),
+                          ),
+                        ],
+                      )
                     : Container(),
               ],
             ),
@@ -234,26 +295,6 @@ class _SPHomePageState extends State<SPHomePage> {
                     : Center(
                         child: Text("No packages added, yet."),
                       ),
-            floatingActionButton: FloatingActionButton(
-              onPressed: () {
-                setRememberMe().then((_) {
-                  clearSharedPrefs().then((_) {
-                    FirebaseAuth.instance.signOut();
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (BuildContext context) => AuthScreen(),
-                      ),
-                      (route) => false,
-                    );
-                    setState(() {
-                      _isLoading = false;
-                    });
-                  });
-                });
-              },
-              child: Icon(Icons.logout),
-            ),
             bottomNavigationBar: BottomNavigationBar(
               currentIndex: _currentIndex,
               selectedItemColor:

@@ -72,6 +72,9 @@ class _ProviderRequestDetailsState extends State<ProviderRequestDetails> {
         "role": "Service Provider",
         "serviceProvider": widget.serviceProvider,
         "imageUrl": widget.imageUrl,
+        "rate": 0.0,
+        "numOfReviews": 0.0,
+        "sumOfRates": 0.0,
       });
     } catch (e) {
       throw e;

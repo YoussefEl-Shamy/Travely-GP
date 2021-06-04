@@ -53,48 +53,37 @@ class _PackageItemState extends State<PackageItem> {
         margin: EdgeInsets.all(10),
         child: Row(
           children: [
-            Row(
-              children: [
-                Text(
-                  "${widget.index + 1}.",
-                  style: TextStyle(color: Colors.black),
-                ),
-                SizedBox(
-                  width: 5,
-                ),
-                CircleAvatar(
-                  backgroundColor: Colors.black38,
-                  radius: 35,
-                  backgroundImage: NetworkImage(widget.imageUrl),
-                ),
-                SizedBox(width: 15),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.packageName,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 14),
-                    Text("${price.toStringAsFixed(2)} ${widget.originalCurrency}"),
-                  ],
-                ),
-              ],
+            Text(
+              "${widget.index + 1}.",
+              style: TextStyle(color: Colors.black),
             ),
+            SizedBox(
+              width: 5
+            ),
+            CircleAvatar(
+              backgroundColor: Colors.black38,
+              radius: 35,
+              backgroundImage: NetworkImage(widget.imageUrl),
+            ),
+            SizedBox(width: 15),
             Expanded(
-              child: Container(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Icon(
-                      Icons.arrow_forward_ios,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.packageName,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
                     ),
-                  ],
-                ),
+                  ),
+                  SizedBox(height: 14),
+                  Text("${price.toStringAsFixed(2)} ${widget.originalCurrency}"),
+                ],
               ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
             ),
           ],
         ),

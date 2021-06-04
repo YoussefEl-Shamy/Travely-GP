@@ -3,16 +3,19 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:travely/Registration%20components/text_field.dart';
 import 'package:travely/Screens/loading.dart';
 import 'package:travely/Screens/loading_wave.dart';
 
 class PackageDetails extends StatefulWidget {
-  final organizerId, packageId;
+  final organizerId, packageId, packageName, description, price, categories;
 
   PackageDetails({
     this.organizerId,
     this.packageId,
+    this.packageName,
+    this.description,
+    this.price,
+    this.categories,
   });
 
   @override
@@ -39,7 +42,10 @@ class _PackageDetailsState extends State<PackageDetails> {
       userId = FirebaseAuth.instance.currentUser.uid,
       ff = FirebaseFirestore.instance,
       numberOfBookedTickets;
-  var originalCurrency, currencyConverterVal, finalPrice, totalPriceOfTickets = 0.0;
+  var originalCurrency,
+      currencyConverterVal,
+      finalPrice,
+      totalPriceOfTickets = 0.0;
   int _currentImage;
   bool _isLoading = true, _isBooked;
 
@@ -185,24 +191,27 @@ class _PackageDetailsState extends State<PackageDetails> {
   }
 
   _bookPackage() async {
-    var id = ff
-        .collection("travelersPackages")
-        .doc()
-        .id
-        .toString();
+    var id = ff.collection("travelersPackages").doc().id.toString();
     await ff.collection("travelersPackages").doc(id).set({
       "ticketId": id,
       "packageId": widget.packageId,
       "travelerId": userId,
       "numOfTickets": numberOfBookedTickets,
       "organizerId": widget.organizerId,
+      "packageName": widget.packageName,
+      "description": widget.description,
+      "price": widget.price,
+      "categories": widget.categories,
       "rate": 0.0,
     });
     final snackBar = SnackBar(
       content: Row(
         children: [
           Text('Total price: '),
-          Text('$totalPriceOfTickets', style: TextStyle(fontWeight: FontWeight.bold),)
+          Text(
+            '$totalPriceOfTickets',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          )
         ],
       ),
       backgroundColor: Colors.green,
@@ -243,7 +252,9 @@ class _PackageDetailsState extends State<PackageDetails> {
                 keyboardType: TextInputType.numberWithOptions(
                     decimal: false, signed: false),
                 onChanged: (newValue) {
-                  totalPriceOfTickets = double.parse(finalPrice.toStringAsFixed(2)) * double.parse(ticketsController.text);
+                  totalPriceOfTickets =
+                      double.parse(finalPrice.toStringAsFixed(2)) *
+                          double.parse(ticketsController.text);
                   print("Total Price: $totalPriceOfTickets");
                 },
               ),
@@ -695,33 +706,41 @@ class _PackageDetailsState extends State<PackageDetails> {
               ],
             ),
             SizedBox(height: 25),
-            _isBooked == false
-                ? FlatButton(
-                    child: Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Text(
-                        "Book Travel Package",
-                        style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    color: Theme.of(context).accentColor,
-                    splashColor: Colors.red,
-                    onPressed: () {
-                      showNumberOfTicketsDialog();
-                    },
-                  )
-                : Text(
-                    "Booked Successfully!",
+            DateTime.now().difference(startDate) > Duration(days: 0)
+                ? Text(
+                    "Out of date!",
                     style: TextStyle(
-                        color: Colors.green,
+                        color: Colors.red,
                         fontSize: 18,
                         fontWeight: FontWeight.bold),
-                  ),
+                  )
+                : _isBooked == false
+                    ? FlatButton(
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Text(
+                            "Book Travel Package",
+                            style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        color: Theme.of(context).accentColor,
+                        splashColor: Colors.red,
+                        onPressed: () {
+                          showNumberOfTicketsDialog();
+                        },
+                      )
+                    : Text(
+                        "Booked Successfully!",
+                        style: TextStyle(
+                            color: Colors.green,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold),
+                      ),
             SizedBox(height: 25),
           ],
         );

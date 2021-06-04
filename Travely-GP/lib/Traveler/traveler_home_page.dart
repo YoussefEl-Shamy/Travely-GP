@@ -31,7 +31,6 @@ class _FirstPageState extends State<FirstPage> {
   var finishedPackagesIDs = [];
 
   getPackagesIDs() async {
-    print("The beginning of shit");
     await FirebaseFirestore.instance
         .collection('travelersPackages')
         .where("travelerId", isEqualTo: userId)
@@ -77,14 +76,44 @@ class _FirstPageState extends State<FirstPage> {
     });
   }
 
+  moveToUnRated({
+    String organizerId,
+    String packageId,
+    double rate,
+    String travelerId,
+    int numOfTickets,
+    String packageName,
+    double price,
+    String description,
+    categories,
+  }) async {
+    var id = FirebaseFirestore.instance
+        .collection("unRatedTravels")
+        .doc()
+        .id
+        .toString();
+    await FirebaseFirestore.instance.collection("unRatedTravels").doc(id).set({
+      "organizerId": organizerId,
+      "packageId": packageId,
+      "rate": rate,
+      "ticketId": id,
+      "travelerId": travelerId,
+      "numOfTickets": numOfTickets,
+      "packageName": packageName,
+      "description": description,
+      "price": price,
+      "categories": categories,
+    });
+  }
+
   deleteTravelerTicket() {
-    getPackagesIDs().then((_){
+    getPackagesIDs().then((_) {
       print("package IDs length: ${packagesIDs.length}");
       for (int i = 0; i < packagesIDs.length; i++) {
-        checkDoc(packagesIDs[i]).then((_){
+        checkDoc(packagesIDs[i]).then((_) {
           print("checker 1: $checkDocExistence");
           print("checker 2: $checker");
-          print("package number ${i+1}: ${packagesIDs[i]}");
+          print("package number ${i + 1}: ${packagesIDs[i]}");
           if (checkDocExistence && checker) {
             print("if condition");
             FirebaseFirestore.instance
@@ -103,10 +132,32 @@ class _FirstPageState extends State<FirstPage> {
                     .get()
                     .then((value) {
                   value.docs.forEach((element) {
-                    FirebaseFirestore.instance
-                        .collection("travelersPackages")
-                        .doc(element.id)
-                        .delete();
+                    var organizerId = element['organizerId'];
+                    var packageId = element['packageId'];
+                    var rate = element['rate'];
+                    var ticketId = element['ticketId'];
+                    var travelerId = element['travelerId'];
+                    var numOfTickets = element['numOfTickets'];
+                    var packageName = element['packageName'];
+                    var categories = element['categories'];
+                    var price = element['price'];
+                    var description = element['description'];
+                    moveToUnRated(
+                            numOfTickets: numOfTickets,
+                            organizerId: organizerId,
+                            packageId: packageId,
+                            packageName: packageName,
+                            rate: rate,
+                            travelerId: travelerId,
+                            categories: categories,
+                            price: price,
+                            description: description)
+                        .then((_) {
+                      FirebaseFirestore.instance
+                          .collection("travelersPackages")
+                          .doc(element.id)
+                          .delete();
+                    });
                   });
                 });
                 FirebaseFirestore.instance
@@ -193,7 +244,8 @@ class _FirstPageState extends State<FirstPage> {
     setState(() {
       _isLoading = false;
     });
-    Provider.of<UnRatedProvider>(context).setUnRatedNum(unRatedNum);
+    Provider.of<UnRatedProvider>(context, listen: false)
+        .setUnRatedNum(unRatedNum);
   }
 
   @override
@@ -259,59 +311,64 @@ class _FirstPageState extends State<FirstPage> {
         ? Loading()
         : Scaffold(
             appBar: AppBar(
-              title: sProviderFalse.isSearching
-                  ? TextField(
-                      cursorColor: Colors.white,
-                      autofocus: true,
-                      controller: searchController,
-                      onChanged: (value) {
-                        setState(() {
-                          searchVal = value;
-                        });
-                        setState(() {
-                          resultsCounter = 0;
-                        });
-                      },
-                      style: TextStyle(color: Colors.white, fontSize: 17),
-                      decoration: InputDecoration(
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(50),
-                          borderSide: BorderSide(color: Colors.white, width: 3),
-                        ),
-                        prefixIcon: Icon(Icons.search, color: Colors.white),
-                        hintText: ("Search for package"),
-                        hintStyle: TextStyle(color: Colors.white60),
-                      ),
-                    )
-                  : _currentIndex == 0
-                      ? Text("Travel Packages")
-                      : Text("Recommended Packages"),
+              title: _currentIndex == 0
+                  ? sProviderFalse.isSearching
+                      ? TextField(
+                          cursorColor: Colors.white,
+                          autofocus: true,
+                          controller: searchController,
+                          onChanged: (value) {
+                            setState(() {
+                              searchVal = value;
+                            });
+                            setState(() {
+                              resultsCounter = 0;
+                            });
+                          },
+                          style: TextStyle(color: Colors.white, fontSize: 17),
+                          decoration: InputDecoration(
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(50),
+                              borderSide:
+                                  BorderSide(color: Colors.white, width: 3),
+                            ),
+                            prefixIcon: Icon(Icons.search, color: Colors.white),
+                            hintText: ("Search for package"),
+                            hintStyle: TextStyle(color: Colors.white60),
+                          ),
+                        )
+                      : Text("Travel Packages")
+                  : Text("Recommended Packages"),
               actions: <Widget>[
-                sProviderFalse.isSearching
-                    ? IconButton(
-                        icon: Icon(Icons.cancel),
-                        onPressed: () {
-                          searchController.text = "";
-                          searchVal = "";
-                          sProviderTrue.setSearch(sProviderFalse.isSearching);
-                        },
-                      )
-                    : IconButton(
-                        icon: Icon(Icons.search),
-                        onPressed: () {
-                          sProviderTrue.setSearch(sProviderFalse.isSearching);
-                        },
-                      ),
+                _currentIndex == 0
+                    ? sProviderFalse.isSearching
+                        ? IconButton(
+                            icon: Icon(Icons.cancel),
+                            onPressed: () {
+                              searchController.text = "";
+                              searchVal = "";
+                              sProviderTrue
+                                  .setSearch(sProviderFalse.isSearching);
+                            },
+                          )
+                        : IconButton(
+                            icon: Icon(Icons.search),
+                            onPressed: () {
+                              sProviderTrue
+                                  .setSearch(sProviderFalse.isSearching);
+                            },
+                          )
+                    : Container(),
                 sProviderFalse.isSearching ? Container() : getTravelerImage(),
               ],
             ),
             body: _currentIndex == 1
-                ? RecommendedTarvels()
+                ? RecommendedTravels()
                 : checker
                     ? StreamBuilder(
                         stream: FirebaseFirestore.instance
                             .collection('packages')
-                            .orderBy("packageName")
+                            .orderBy("startDate", descending: true)
                             .snapshots(),
                         builder: (ctx, snapShot) {
                           if (snapShot.connectionState ==
@@ -343,6 +400,7 @@ class _FirstPageState extends State<FirstPage> {
                                       ['currencyConverterVal'],
                                   index: index,
                                   searchVal: searchVal,
+                                  categories: docs[index]['categories'],
                                 );
                               } else {
                                 if (resultsCounter <= docs.length)

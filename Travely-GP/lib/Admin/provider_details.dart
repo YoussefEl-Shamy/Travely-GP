@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'package:travely/Providers/admin_email_pass_provider.dart';
 import 'package:travely/Screens/loading_wave.dart';
 
@@ -18,6 +19,7 @@ class ProviderDetails extends StatefulWidget {
 class _ProviderDetailsState extends State<ProviderDetails> {
   var provider, providerName, imageUrl, email, password;
   bool _isLoading = false;
+  Color fc = Color(0xFFf58634);
 
   getProviderName() {
     provider = FirebaseFirestore.instance
@@ -77,6 +79,7 @@ class _ProviderDetailsState extends State<ProviderDetails> {
         var phone = snapshot.data['phone'];
         var serviceProvider = snapshot.data['serviceProvider'];
         imageUrl = snapshot.data['imageUrl'];
+        var rate = snapshot.data['rate'];
         return Column(
           children: [
             ClipRRect(
@@ -166,6 +169,26 @@ class _ProviderDetailsState extends State<ProviderDetails> {
                         ),
                       ],
                     ),
+                  ),
+                  SmoothStarRating(
+                    rating: rate.toDouble(),
+                    size: 35,
+                    isReadOnly: true,
+                    color: fc,
+                    borderColor: fc,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text("Service provider rate: "),
+                      Text(
+                        "$rate",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

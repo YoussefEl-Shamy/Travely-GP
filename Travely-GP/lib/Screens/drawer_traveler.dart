@@ -9,6 +9,8 @@ import 'package:travely/Admin/view_packages.dart';
 import 'package:travely/Providers/admin_email_pass_provider.dart';
 import 'package:travely/Providers/un_rated_provider.dart';
 import 'package:travely/Screens/loading.dart';
+import 'package:travely/Traveler/rated_travels.dart';
+import 'package:travely/Traveler/un_rated_travels.dart';
 import 'package:travely/Traveler/view_my_tickets.dart';
 import 'package:travely/auth/auth_screen.dart';
 
@@ -191,7 +193,7 @@ class _MainDrawerTravelerState extends State<MainDrawerTraveler> {
                     Provider.of<UnRatedProvider>(context, listen: false)
                         .setUnRatedNum(0);
                     Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-                      return ViewTickets();
+                      return UnRatedTravels();
                     }));
                   },
                 ),
@@ -206,7 +208,7 @@ class _MainDrawerTravelerState extends State<MainDrawerTraveler> {
                   ),
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-                      return ViewTickets();
+                      return RatedTravels();
                     }));
                   },
                 ),

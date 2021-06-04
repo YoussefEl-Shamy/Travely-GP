@@ -4,15 +4,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:travely/Traveler/edit_profile_picture.dart';
-import 'package:travely/Traveler/edit_traveler_profile.dart';
+import 'package:travely/Service provider/edit_profile_picture.dart';
+import 'package:travely/Service provider/edit_service_provider_profle.dart';
 
-class TravelerProfile extends StatefulWidget {
+class ServiceProviderProfile extends StatefulWidget {
   @override
-  _TravelerProfileState createState() => _TravelerProfileState();
+  _ServiceProviderProfileState createState() => _ServiceProviderProfileState();
 }
 
-class _TravelerProfileState extends State<TravelerProfile> {
+class _ServiceProviderProfileState extends State<ServiceProviderProfile> {
   String imageUrl = "";
   PermissionStatus imageState;
   PickedFile imageFile;
@@ -22,9 +22,7 @@ class _TravelerProfileState extends State<TravelerProfile> {
   var phone;
   var address;
   var email;
-  var gender;
-  var birth;
-  var birthDate;
+  var serviceProvided;
 
   imageDialog() {
     return InteractiveViewer(
@@ -142,12 +140,12 @@ class _TravelerProfileState extends State<TravelerProfile> {
     );
   }
 
-  getTravelerDetails() {
+  getServiceProviderDetails() {
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),
       child: StreamBuilder(
         stream: FirebaseFirestore.instance
-            .collection("travelers")
+            .collection("service providers")
             .doc(FirebaseAuth.instance.currentUser.uid)
             .snapshots(),
         builder: (ctx, snapShot) {
@@ -167,9 +165,7 @@ class _TravelerProfileState extends State<TravelerProfile> {
           phone = data['phone'];
           address = data['address'];
           email = data['email'];
-          gender = data['gender'];
-          birth = data['dateOfBirth'];
-          birthDate = DateTime.parse(birth.toDate().toString());
+          serviceProvided = data['serviceProvider'];
           return Column(
             children: [
               Stack(
@@ -278,11 +274,13 @@ class _TravelerProfileState extends State<TravelerProfile> {
                     buildListTile(Icon(Icons.email_rounded), email.toString()),
                     buildListTile(Icon(Icons.phone), phone.toString()),
                     buildListTile(Icon(Icons.home), address.toString()),
-                    buildListTile(Icon(Icons.date_range),
-                        "${birthDate.day}/${birthDate.month}/${birthDate.year}"),
                     buildListTile(
-                        Icon(gender == "Male" ? Icons.male : Icons.female),
-                        gender),
+                        Icon(serviceProvided == "Travels organizer"
+                            ? Icons.travel_explore
+                            : serviceProvided == "Airport"
+                                ? Icons.airplanemode_active
+                                : Icons.hotel),
+                        serviceProvided),
                   ],
                 ),
               ),
@@ -303,14 +301,12 @@ class _TravelerProfileState extends State<TravelerProfile> {
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(builder: (_) {
                 print("Username1: $username");
-                print("Birth date: $birth");
-                return EditTravelerProfile(
+                return EditServiceProviderProfile(
                   username: username,
                   address: address,
                   email: email,
                   phone: phone,
-                  birthDate: birthDate,
-                  gender: gender,
+                  serviceProvided: serviceProvided,
                 );
               }));
             },
@@ -323,7 +319,7 @@ class _TravelerProfileState extends State<TravelerProfile> {
           padding: const EdgeInsets.only(top: 20.0, right: 10, left: 10),
           child: Column(
             children: [
-              getTravelerDetails(),
+              getServiceProviderDetails(),
             ],
           ),
         ),

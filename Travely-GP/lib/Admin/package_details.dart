@@ -19,8 +19,6 @@ class PackageDetails extends StatefulWidget {
   _PackageDetailsState createState() => _PackageDetailsState();
 }
 
-Color fc = Color(0xFFf58634);
-
 class _PackageDetailsState extends State<PackageDetails> {
   String packageName, organizerName, organizerEmail, imageUrl;
   var image1, image2, image3, image4, image5, image6, image7;
@@ -142,7 +140,6 @@ class _PackageDetailsState extends State<PackageDetails> {
         currencyConverterVal = snapshot.data['currencyConverterVal'];
         originalCurrency = snapshot.data['originalCurrency'];
         finalPrice = price * currencyConverterVal;
-        var rate = snapshot.data['rate'];
         image1 = snapshot.data['images'][0];
         try {
           image2 = snapshot.data['images'][1];
@@ -311,26 +308,6 @@ class _PackageDetailsState extends State<PackageDetails> {
                     ),
                   ),
                   SizedBox(height: 15),
-                  SmoothStarRating(
-                    rating: rate.toDouble(),
-                    size: 35,
-                    isReadOnly: true,
-                    color: fc,
-                    borderColor: fc,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Package rate: "),
-                      Text(
-                        "$rate",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),

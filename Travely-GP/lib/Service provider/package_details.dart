@@ -3,7 +3,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:travely/Screens/loading.dart';
 import 'package:travely/Screens/loading_wave.dart';
-import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:travely/Service%20provider/update_package.dart';
 
@@ -32,8 +31,17 @@ class _PackageDetailsState extends State<PackageDetails> {
       finalPrice,
       startDate,
       endDate;
+  var category1,
+      category2,
+      category3,
+      category4,
+      category5,
+      category6,
+      category7,
+      category8;
+  List<String> categories = [];
   bool _isLoading = false;
-  int _currentImage;
+  int _currentImage, numOfTickets;
 
   getPackageName() {
     package = FirebaseFirestore.instance
@@ -92,10 +100,10 @@ class _PackageDetailsState extends State<PackageDetails> {
         var start = snapshot.data['startDate'];
         var end = snapshot.data['endDate'];
         price = snapshot.data['price'];
-        var rate = snapshot.data['rate'];
         image1 = snapshot.data['images'][0];
         currencyConverterVal = snapshot.data['currencyConverterVal'];
         originalCurrency = snapshot.data['originalCurrency'];
+        numOfTickets = snapshot.data['numOfTickets'];
         try {
           image2 = snapshot.data['images'][1];
         } catch (e) {
@@ -133,6 +141,51 @@ class _PackageDetailsState extends State<PackageDetails> {
         if (image5 != null) images.add(image5);
         if (image6 != null) images.add(image6);
         if (image7 != null) images.add(image7);
+
+        category1 = snapshot.data['categories'][0];
+        try {
+          category2 = snapshot.data['categories'][1];
+        } catch (e) {
+          print(e);
+        }
+        try {
+          category3 = snapshot.data['categories'][2];
+        } catch (e) {
+          print(e);
+        }
+        try {
+          category4 = snapshot.data['categories'][3];
+        } catch (e) {
+          print(e);
+        }
+        try {
+          category5 = snapshot.data['categories'][4];
+        } catch (e) {
+          print(e);
+        }
+        try {
+          category6 = snapshot.data['categories'][5];
+        } catch (e) {
+          print(e);
+        }
+        try {
+          category7 = snapshot.data['categories'][6];
+        } catch (e) {
+          print(e);
+        }
+        try {
+          category8 = snapshot.data['categories'][7];
+        } catch (e) {
+          print(e);
+        }
+        categories.add(category1);
+        if (category2 != null) categories.add(category2);
+        if (category3 != null) categories.add(category3);
+        if (category4 != null) categories.add(category4);
+        if (category5 != null) categories.add(category5);
+        if (category6 != null) categories.add(category6);
+        if (category7 != null) categories.add(category7);
+        if (category8 != null) categories.add(category8);
         print("images list length is: ${images.length}");
         print("Type of images list: ${images.runtimeType}");
         startDate = DateTime.parse(start.toDate().toString());
@@ -258,27 +311,122 @@ class _PackageDetailsState extends State<PackageDetails> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 15),
-                  SmoothStarRating(
-                    rating: rate.toDouble(),
-                    size: 35,
-                    isReadOnly: true,
-                    color: fc,
-                    borderColor: fc,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  SizedBox(height: 10),
+                  ExpansionTile(
+                    textColor: fc,
+                    iconColor: fc,
+                    title: Text(
+                      "Package types",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text("Show the package types"),
                     children: [
-                      Text("Package rate: "),
-                      Text(
-                        "$rate",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              "- ${categories[0]}",
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ],
                         ),
                       ),
+                      if (category2 != null)
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                "- ${categories[1]}",
+                                style: TextStyle(fontSize: 18),
+                              ),
+                            ],
+                          ),
+                        ),
+                      if (category3 != null)
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                "- ${categories[2]}",
+                                style: TextStyle(fontSize: 18),
+                              ),
+                            ],
+                          ),
+                        ),
+                      if (category4 != null)
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                "- ${categories[3]}",
+                                style: TextStyle(fontSize: 18),
+                              ),
+                            ],
+                          ),
+                        ),
+                      if (category5 != null)
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                "- ${categories[4]}",
+                                style: TextStyle(fontSize: 18),
+                              ),
+                            ],
+                          ),
+                        ),
+                      if (category6 != null)
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                "- ${categories[5]}",
+                                style: TextStyle(fontSize: 18),
+                              ),
+                            ],
+                          ),
+                        ),
+                      if (category7 != null)
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                "- ${categories[6]}",
+                                style: TextStyle(fontSize: 18),
+                              ),
+                            ],
+                          ),
+                        ),
+                      if (category8 != null)
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                "- ${categories[7]}",
+                                style: TextStyle(fontSize: 18),
+                              ),
+                            ],
+                          ),
+                        ),
                     ],
                   ),
+                  SizedBox(height: 15),
                 ],
               ),
             ),
@@ -364,21 +512,40 @@ class _PackageDetailsState extends State<PackageDetails> {
               title: getPackageName(),
               actions: [
                 IconButton(
-                  icon: Icon(Icons.update),
+                  icon: Icon(Icons.edit),
                   color: Colors.white,
                   onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-                      print("Start date: $startDate");
-                      return UpdatePackage(
-                        packageName: packageName,
-                        packageDescription: description,
-                        startDate: startDate,
-                        endDate: endDate,
-                        packageId: widget.packageId,
-                        packagePrice: price,
-                        images: images,
+                    if (DateTime.now().difference(startDate) >
+                        Duration(days: 0)) {
+                      final snackBar = SnackBar(
+                        content: Text(
+                            "You cannot update a package that's already started !"),
+                        backgroundColor: Colors.red,
+                        duration: Duration(seconds: 5),
                       );
-                    }));
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    } else {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) {
+                            print("Start date: $startDate");
+                            return UpdatePackage(
+                              packageName: packageName,
+                              packageDescription: description,
+                              startDate: startDate,
+                              endDate: endDate,
+                              packageId: widget.packageId,
+                              packagePrice: price,
+                              images: images,
+                              currencyConverterVal: currencyConverterVal,
+                              originalCurrency: originalCurrency,
+                              categories: categories,
+                              numOfTickets: numOfTickets,
+                            );
+                          },
+                        ),
+                      );
+                    }
                   },
                 ),
                 IconButton(
