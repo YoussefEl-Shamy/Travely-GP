@@ -3,11 +3,19 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:toast/toast.dart';
+import 'package:travely/Auth/auth_screen.dart';
 import 'package:travely/Screens/loading.dart';
 import 'package:travely/Screens/loading_wave.dart';
 
 class PackageDetails extends StatefulWidget {
-  final organizerId, packageId, packageName, description, price, categories;
+  final organizerId,
+      packageId,
+      packageName,
+      description,
+      price,
+      categories,
+      actor;
 
   PackageDetails({
     this.organizerId,
@@ -16,6 +24,7 @@ class PackageDetails extends StatefulWidget {
     this.description,
     this.price,
     this.categories,
+    this.actor,
   });
 
   @override
@@ -38,10 +47,7 @@ class _PackageDetailsState extends State<PackageDetails> {
       category8;
   List<String> images = [];
   List<String> categories = [];
-  var package,
-      userId = FirebaseAuth.instance.currentUser.uid,
-      ff = FirebaseFirestore.instance,
-      numberOfBookedTickets;
+  var package, userId, ff = FirebaseFirestore.instance, numberOfBookedTickets;
   var originalCurrency,
       currencyConverterVal,
       finalPrice,
@@ -164,11 +170,19 @@ class _PackageDetailsState extends State<PackageDetails> {
   var snapshotDocs;
 
   getDocs() async {
-    snapshotDocs = await ff
-        .collection("travelersPackages")
-        .where("travelerId", isEqualTo: userId)
-        .where("packageId", isEqualTo: widget.packageId)
-        .get();
+    print("Hiiiiiiiiiiiiiiiiii");
+    print(userId);
+    print(widget.packageId);
+    snapshotDocs = userId != null
+        ? await ff
+            .collection("travelersPackages")
+            .where("travelerId", isEqualTo: userId)
+            .where("packageId", isEqualTo: widget.packageId)
+            .get()
+        : await ff
+            .collection("travelersPackages")
+            .where("packageId", isEqualTo: widget.packageId)
+            .get();
     print("inside getDocs");
   }
 
@@ -339,6 +353,41 @@ class _PackageDetailsState extends State<PackageDetails> {
               "Confirm",
               style:
                   TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+            ),
+          ),
+          FlatButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+            child: Text(
+              "Close",
+              style: TextStyle(color: Colors.black),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  showLoginDialog() {
+    showDialog(
+      context: this.context,
+      builder: (ctx) => AlertDialog(
+        title: Text("Notice !"),
+        content: Text("You have to be logged in to book travels"),
+        actions: [
+          FlatButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) {
+                return AuthScreen(isFromPackageDetails: true);
+              }));
+            },
+            child: Text(
+              "Go to login page",
+              style:
+              TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
             ),
           ),
           FlatButton(
@@ -731,7 +780,12 @@ class _PackageDetailsState extends State<PackageDetails> {
                         color: Theme.of(context).accentColor,
                         splashColor: Colors.red,
                         onPressed: () {
-                          showNumberOfTicketsDialog();
+                          if (FirebaseAuth.instance.currentUser.uid != null) {
+                            print(userId);
+                            showNumberOfTicketsDialog();
+                          } else {
+                            showLoginDialog();
+                          }
                         },
                       )
                     : Text(
@@ -751,6 +805,9 @@ class _PackageDetailsState extends State<PackageDetails> {
   @override
   void initState() {
     super.initState();
+    userId = FirebaseAuth.instance.currentUser.uid != null
+        ? FirebaseAuth.instance.currentUser.uid
+        : null;
     checkBooked();
     getPackageName();
     getPackageDetails();

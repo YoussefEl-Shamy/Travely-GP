@@ -25,7 +25,8 @@ class PackageItem extends StatefulWidget {
     this.searchVal,
     this.originalCurrency,
     this.currencyConverterVal,
-    this.description, this.price,
+    this.description,
+    this.price,
   });
 
   @override
@@ -77,113 +78,102 @@ class _PackageItemState extends State<PackageItem> {
       onTap: () {
         showPackageDetails(context);
       },
-      child: Column(
-        children: [
-          Container(
-            margin: EdgeInsets.all(10),
-            child: Row(
+      child: Container(
+        margin: EdgeInsets.all(10),
+        child: Column(
+          children: [
+            Row(
               children: [
-                Row(
-                  children: [
-                    Text(
-                      "${widget.index + 1}.",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                    SizedBox(
-                      width: 5,
-                    ),
-                    CircleAvatar(
-                      backgroundColor: Colors.black38,
-                      radius: 35,
-                      backgroundImage: NetworkImage(widget.imageUrl),
-                    ),
-                    SizedBox(width: 15),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        widget.searchVal == ""
-                            ? Text(
-                          widget.packageName,
+                Text(
+                  "${widget.index + 1}.",
+                  style: TextStyle(color: Colors.black),
+                ),
+                SizedBox(
+                  width: 5,
+                ),
+                CircleAvatar(
+                  backgroundColor: Colors.black38,
+                  radius: 35,
+                  backgroundImage: NetworkImage(widget.imageUrl),
+                ),
+                SizedBox(width: 15),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      widget.searchVal == ""
+                          ? Text(
+                              widget.packageName,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            )
+                          : SubstringHighlight(
+                              text: widget.packageName,
+                              term: widget.searchVal,
+                              textStyle: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                  fontFamily: 'Raleway'),
+                            ),
+                      SizedBox(height: 14),
+                      getOrganizerName(),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios,
+                ),
+              ],
+            ),
+            ExpansionTile(
+              title: Text("More Info."),
+              leading: Icon(Icons.info),
+              children: [
+                ListTile(
+                  title: Text(
+                    "Description\n",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: widget.searchVal == ""
+                      ? Text(widget.description,
                           style: TextStyle(
-                            fontWeight: FontWeight.bold,
                             fontSize: 18,
-                          ),
-                        )
-                            : SubstringHighlight(
-                          text: widget.packageName,
+                          ))
+                      : SubstringHighlight(
+                          text: widget.description,
                           term: widget.searchVal,
                           textStyle: TextStyle(
-                              fontWeight: FontWeight.bold,
                               fontSize: 18,
                               color: Colors.black,
                               fontFamily: 'Raleway'),
                         ),
-                        SizedBox(height: 14),
-                        getOrganizerName(),
-                      ],
-                    ),
-                  ],
+                  leading: Icon(Icons.description),
                 ),
-                Expanded(
-                  child: Container(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Icon(
-                          Icons.arrow_forward_ios,
-                        ),
-                      ],
-                    ),
+                Divider(
+                  thickness: 1,
+                  color: Theme.of(context).primaryColor,
+                  endIndent: 10,
+                  indent: 10,
+                ),
+                ListTile(
+                  title: Text(
+                    "Price\n",
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
+                  subtitle: Text(
+                      "${price.toStringAsFixed(2)} ${widget.originalCurrency}",
+                      style: TextStyle(
+                        fontSize: 18,
+                      )),
+                  leading: Icon(Icons.attach_money_outlined),
                 ),
               ],
             ),
-          ),
-          ExpansionTile(
-            title: Text("More Info."),
-            leading: Icon(Icons.info),
-            children: [
-              ListTile(
-                title: Text(
-                  "Description\n",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: widget.searchVal == ""
-                    ? Text(widget.description,
-                        style: TextStyle(
-                          fontSize: 18,
-                        ))
-                    : SubstringHighlight(
-                        text: widget.description,
-                        term: widget.searchVal,
-                        textStyle: TextStyle(
-                            fontSize: 18,
-                            color: Colors.black,
-                            fontFamily: 'Raleway'),
-                      ),
-                leading: Icon(Icons.description),
-              ),
-              Divider(
-                thickness: 1,
-                color: Theme.of(context).primaryColor,
-                endIndent: 10,
-                indent: 10,
-              ),
-              ListTile(
-                title: Text(
-                  "Price\n",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text(
-                    "${price.toStringAsFixed(2)} ${widget.originalCurrency}",
-                    style: TextStyle(
-                      fontSize: 18,
-                    )),
-                leading: Icon(Icons.attach_money_outlined),
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -18,29 +18,74 @@ class _RecommendedTravelsState extends State<RecommendedTravels> {
   var ratedPackagesIds = [];
   Map packageCs = {};
   var results = [];
-  bool _isLoading = true, checker = false;
+  bool _isLoading = false, packageChecker = false, ratedChecker = false;
   var snapshotDocs, packageRank = 0;
 
-  getDocs() async {
+  getRatedDocs() async {
+    snapshotDocs =
+        await FirebaseFirestore.instance.collection("ratedTravels").get();
+  }
+
+  checkRatedCollection() {
+    getRatedDocs().then((_) {
+      if (snapshotDocs.docs.length == 0) {
+        setState(() {
+          ratedChecker = false;
+        });
+      } else {
+        setState(() {
+          ratedChecker = true;
+        });
+      }
+    });
+  }
+
+  var travelerRatedPackages, travelerRatedPackagesChecker = false;
+
+  getTravelerRatedPackages() async {
+    travelerRatedPackages = await FirebaseFirestore.instance
+        .collection("ratedTravels")
+        .where("travelerId", isEqualTo: userId)
+        .get();
+  }
+
+  checkTravelerRatedPackages() {
+    getTravelerRatedPackages().then((_) {
+      if (travelerRatedPackages.docs.length == 0) {
+        setState(() {
+          travelerRatedPackagesChecker = false;
+        });
+      } else {
+        setState(() {
+          travelerRatedPackagesChecker = true;
+        });
+      }
+    });
+  }
+
+  getPackagesDocs() async {
     snapshotDocs =
         await FirebaseFirestore.instance.collection("packages").get();
   }
 
-  checkCollection() {
-    getDocs().then((_) {
+  checkPackagesCollection() {
+    getPackagesDocs().then((_) {
       if (snapshotDocs.docs.length == 0) {
         setState(() {
-          checker = false;
+          packageChecker = false;
         });
       } else {
         setState(() {
-          checker = true;
+          packageChecker = true;
         });
       }
     });
   }
 
   Future<void> loadPackages() async {
+    setState(() {
+      _isLoading = true;
+    });
     String uri =
         "https://us-central1-travely-78048.cloudfunctions.net/yarab?travelerId=$userId";
     var response = await http.get(Uri.parse(Uri.encodeFull(uri)),
@@ -55,15 +100,15 @@ class _RecommendedTravelsState extends State<RecommendedTravels> {
 
       setRate();
       print("Zzzzzzzzzzzzzzzzzz 1");
-      setState(() {
-        _isLoading = false;
-      });
     });
   }
 
   var totalScoresMap = {};
 
   Future<void> setRate() async {
+    setState(() {
+      _isLoading = true;
+    });
     packageCs.forEach((key, value) async {
       await FirebaseFirestore.instance
           .collection('packages')
@@ -90,11 +135,9 @@ class _RecommendedTravelsState extends State<RecommendedTravels> {
             print(totalScoresMap.keys.toList());
             print(totalScoresMap.values.toList());
             print("Total scores map: $totalScoresMap");
-            setState(() {
-              _isLoading = false;
-            });
           }
         });
+        sortMap();
       });
     });
   }
@@ -127,10 +170,16 @@ class _RecommendedTravelsState extends State<RecommendedTravels> {
     print("My Final Sorted Lists which I fuckin' admire");
     print("$sortedKeysList\n$sortedValuesList\n");
 
+    if (sortedKeysList.isNotEmpty) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
     return Container();
   }
 
   getPackages(String id) {
+    print("666   $id");
     return StreamBuilder(
       stream:
           FirebaseFirestore.instance.collection("packages").doc(id).snapshots(),
@@ -158,33 +207,30 @@ class _RecommendedTravelsState extends State<RecommendedTravels> {
   @override
   void initState() {
     super.initState();
-    checkCollection();
-    loadPackages().then((_) {
-      setState(() {
-        _isLoading = false;
-      });
-    });
+    checkRatedCollection();
+    checkPackagesCollection();
+    checkTravelerRatedPackages();
+    loadPackages();
   }
 
   @override
   Widget build(BuildContext context) {
-    return _isLoading
-        ? Loading()
-        : Scaffold(
-            body: checker
-                ? SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        sortMap(),
-                        for (var id in sortedKeysList) getPackages(id),
-                      ],
-                    ),
-                  )
-                : Center(
-                    child: Text(
-                      "Sorry, There is no recommendations for you till now.",
-                    ),
-                  ),
-          );
+    return !(ratedChecker && packageChecker&& travelerRatedPackagesChecker)
+        ? Center(
+            child: Text(
+              "Sorry, There is no recommendations for you till now.",
+            ),
+          )
+        : _isLoading
+            ? Loading()
+            : Scaffold(
+                body: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    //sortMap(),
+                    for (var id in sortedKeysList) getPackages(id),
+                  ],
+                ),
+              ));
   }
 }

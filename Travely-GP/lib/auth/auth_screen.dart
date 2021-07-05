@@ -13,6 +13,10 @@ import 'package:travely/auth/auth_form.dart';
 import 'package:flutter/material.dart';
 
 class AuthScreen extends StatefulWidget {
+  final isFromPackageDetails;
+
+  const AuthScreen({this.isFromPackageDetails = false});
+
   @override
   _AuthScreenState createState() => _AuthScreenState();
 }
@@ -37,22 +41,28 @@ class _AuthScreenState extends State<AuthScreen> {
         setRole(userId).then((_) {
           print("User role: $_role");
           if (_role == "admin") {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) {
-                return AdminHomePage();
-              }),
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => AdminHomePage(),
+              ),
+                  (route) => false,
             );
           } else if (_role == "service provider") {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) {
-                return SPHomePage();
-              }),
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => SPHomePage(),
+              ),
+                  (route) => false,
             );
           } else {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) {
-                return FirstPage();
-              }),
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => FirstPage(),
+              ),
+                  (route) => false,
             );
           }
         });
@@ -189,7 +199,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             ],
                           ),
                         ),
-                        AuthForm(_submitAuthForm, _isLoading),
+                        AuthForm(_submitAuthForm, _isLoading, isFromPackageDetails: widget.isFromPackageDetails),
                       ],
                     ),
                   ],

@@ -225,6 +225,7 @@ class _UnRatedTravelDetailsState extends State<UnRatedTravelDetails> {
       "description": description,
       "price": price,
       "categories": categories,
+      "numOfTickets": numOfTickets,
     });
   }
 

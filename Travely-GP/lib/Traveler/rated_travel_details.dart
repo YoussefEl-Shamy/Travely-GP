@@ -139,55 +139,136 @@ class _RatedTravelsItemsDetailsState extends State<RatedTravelsItemsDetails> {
     );
   }
 
-  getOrganizerDetails() {
-    return Padding(
-      padding: EdgeInsets.all(8.0),
-      child: StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection("service providers")
-            .doc(widget.organizerId)
-            .snapshots(),
-        builder: (context, snapShot) {
-          if (snapShot.connectionState == ConnectionState.waiting)
-            return Center(
-              child: CircularProgressIndicator(),
-            );
+  var snapshotDocs, snapshotDoc;
+  bool collectionChecker = false, docChecker = false;
 
-          var data = snapShot.data;
-          var organizerName = data["username"];
-          var email = data["email"];
-          var phone = data["phone"];
-          var rate = data["rate"];
-          return ExpansionTile(
-            textColor: fc,
-            iconColor: fc,
-            title: Text(
-              "Organizer Details",
-              style: TextStyle(fontWeight: FontWeight.bold),
+  getDocs() async {
+    snapshotDocs =
+        await FirebaseFirestore.instance.collection("service providers").get();
+  }
+
+  getDoc() async {
+    snapshotDoc = await FirebaseFirestore.instance
+        .collection("service providers")
+        .doc("${widget.organizerId}")
+        .get();
+  }
+
+  checkCollection() async {
+    await getDocs().then((_) {
+      if (snapshotDocs.docs.length == 0) {
+        setState(() {
+          collectionChecker = false;
+        });
+      } else {
+        setState(() {
+          collectionChecker = true;
+        });
+      }
+    });
+  }
+
+  checkDoc() {
+    checkCollection().then((_) {
+      getDoc().then((_) {
+        print("collectionChecker: $collectionChecker");
+        print("snapshotDoc: $snapshotDoc");
+        if (collectionChecker == false || snapshotDoc == null) {
+          setState(() {
+            docChecker = false;
+          });
+        } else {
+          setState(() {
+            docChecker = true;
+          });
+        }
+      });
+    });
+  }
+
+  checkDocExist() async {
+    try {
+      await FirebaseFirestore.instance
+          .doc("service providers/${widget.organizerId}")
+          .get()
+          .then((doc) {
+        if (doc.exists)
+          setState(() {
+            docChecker = true;
+          });
+        else
+          setState(() {
+            docChecker = false;
+          });
+      });
+      return docChecker;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  getOrganizerDetails() {
+    return docChecker
+        ? Padding(
+            padding: EdgeInsets.all(8.0),
+            child: StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection("service providers")
+                  .doc(widget.organizerId)
+                  .snapshots(),
+              builder: (context, snapShot) {
+                if (snapShot.connectionState == ConnectionState.waiting)
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+
+                var data = snapShot.data;
+                var organizerName = data["username"];
+                var email = data["email"];
+                var phone = data["phone"];
+                var rate = data["rate"];
+                return ExpansionTile(
+                  textColor: fc,
+                  iconColor: fc,
+                  title: Text(
+                    "Organizer Details",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text("Show more details about organizer"),
+                  children: [
+                    ListTile(
+                      title: Text(organizerName),
+                      leading: Icon(Icons.person),
+                    ),
+                    ListTile(
+                      title: Text(email),
+                      leading: Icon(Icons.email),
+                    ),
+                    ListTile(
+                      title: Text(phone),
+                      leading: Icon(Icons.phone),
+                    ),
+                    ListTile(
+                      title: Text("$rate"),
+                      leading: Icon(Icons.star),
+                    ),
+                  ],
+                );
+              },
             ),
-            subtitle: Text("Show more details about organizer"),
-            children: [
-              ListTile(
-                title: Text(organizerName),
-                leading: Icon(Icons.person),
-              ),
-              ListTile(
-                title: Text(email),
-                leading: Icon(Icons.email),
-              ),
-              ListTile(
-                title: Text(phone),
-                leading: Icon(Icons.phone),
-              ),
-              ListTile(
-                title: Text("$rate"),
-                leading: Icon(Icons.star),
-              ),
-            ],
+          )
+        : Center(
+            child: Text(
+              "Sorry, Travel organizer's data is not available.",
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            ),
           );
-        },
-      ),
-    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    checkDocExist();
   }
 
   @override

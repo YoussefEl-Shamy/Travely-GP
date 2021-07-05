@@ -4,12 +4,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:travely/Admin/users_list.dart';
-import 'package:travely/Admin/view_packages.dart';
-import 'package:travely/Providers/admin_email_pass_provider.dart';
 import 'package:travely/Providers/un_rated_provider.dart';
 import 'package:travely/Screens/loading.dart';
 import 'package:travely/Traveler/rated_travels.dart';
+import 'package:travely/Traveler/traveler_profile.dart';
 import 'package:travely/Traveler/un_rated_travels.dart';
 import 'package:travely/Traveler/view_my_tickets.dart';
 import 'package:travely/auth/auth_screen.dart';
@@ -23,7 +21,7 @@ class _MainDrawerTravelerState extends State<MainDrawerTraveler> {
   bool _isLoading = false;
   var userId = FirebaseAuth.instance.currentUser.uid;
   var unRatedNum;
-  Stream unRatedNumStream;
+  Stream travelerStream;
 
   setRememberMe() async {
     SharedPreferences rememberMePreference =
@@ -43,60 +41,114 @@ class _MainDrawerTravelerState extends State<MainDrawerTraveler> {
         .update({"unRatedNum": 0});
   }
 
+  var snapshotDocs;
+  bool checker = false;
+
+  getDocs() async {
+    snapshotDocs =
+        await FirebaseFirestore.instance.collection("unRatedTravels").get();
+  }
+
+  checkCollection() {
+    getDocs().then((_) {
+      if (snapshotDocs.docs.length == 0) {
+        setState(() {
+          checker = false;
+        });
+      } else {
+        setState(() {
+          checker = true;
+        });
+      }
+    });
+  }
+
   getUnRatedNumStream() {
+    return checker == true
+        ? Container(
+            height: 32,
+            width: 32,
+            child: StreamBuilder(
+                stream: travelerStream,
+                builder: (ctx, snapShot) {
+                  if (snapShot.connectionState == ConnectionState.waiting)
+                    return Center(child: CircularProgressIndicator());
+
+                  var data = snapShot.data;
+                  var unRatedNum = data['unRatedNum'];
+                  return unRatedNum < 10 && unRatedNum > 0
+                      ? Container(
+                          height: 30,
+                          width: 30,
+                          padding: EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            border: Border.all(color: Colors.red),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(100)),
+                          ),
+                          child: Center(
+                              child: Text(
+                            "$unRatedNum",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18),
+                          )),
+                        )
+                      : unRatedNum == 0
+                          ? Container(
+                              height: 1,
+                              width: 1,
+                            )
+                          : Container(
+                              height: 32,
+                              width: 32,
+                              padding: EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                border: Border.all(color: Colors.red),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(100)),
+                              ),
+                              child: Center(
+                                  child: Text(
+                                "+9",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18),
+                              )),
+                            );
+                }),
+          )
+        : Container();
+  }
+
+  getTravelerImage() {
     return Container(
       height: 32,
       width: 32,
       child: StreamBuilder(
-          stream: unRatedNumStream,
+          stream: travelerStream,
           builder: (ctx, snapShot) {
             if (snapShot.connectionState == ConnectionState.waiting)
               return Center(child: CircularProgressIndicator());
 
             var data = snapShot.data;
-            var unRatedNum = data['unRatedNum'];
-            return unRatedNum < 10 && unRatedNum > 0
-                ? Container(
-                    height: 30,
-                    width: 30,
-                    padding: EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      border: Border.all(color: Colors.red),
-                      borderRadius: BorderRadius.all(Radius.circular(100)),
-                    ),
-                    child: Center(
-                        child: Text(
-                      "$unRatedNum",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18),
-                    )),
-                  )
-                : unRatedNum == 0
-                    ? Container(
-                        height: 1,
-                        width: 1,
-                      )
-                    : Container(
-                        height: 32,
-                        width: 32,
-                        padding: EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          border: Border.all(color: Colors.red),
-                          borderRadius: BorderRadius.all(Radius.circular(100)),
-                        ),
-                        child: Center(
-                            child: Text(
-                          "+9",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18),
-                        )),
-                      );
+            var imageUrl = data['imageUrl'];
+            return InkWell(
+              borderRadius: BorderRadius.circular(300),
+              child: CircleAvatar(
+                backgroundImage: NetworkImage(imageUrl),
+                backgroundColor: Colors.grey,
+              ),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+                  return TravelerProfile();
+                }));
+              },
+            );
           }),
     );
   }
@@ -104,10 +156,11 @@ class _MainDrawerTravelerState extends State<MainDrawerTraveler> {
   @override
   void initState() {
     super.initState();
-    unRatedNumStream = FirebaseFirestore.instance
+    travelerStream = FirebaseFirestore.instance
         .collection("travelers")
         .doc(userId)
         .snapshots();
+    checkCollection();
   }
 
   @override
@@ -164,6 +217,21 @@ class _MainDrawerTravelerState extends State<MainDrawerTraveler> {
                   ),
                 ),
                 ListTile(
+                  leading: getTravelerImage(),
+                  title: Text(
+                    "My Profile",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontFamily: 'RobotoCondensed',
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+                      return TravelerProfile();
+                    }));
+                  },
+                ),
+                ListTile(
                   leading: Icon(Icons.airplane_ticket_outlined, size: 26),
                   title: Text(
                     "My Tickets",
@@ -187,7 +255,11 @@ class _MainDrawerTravelerState extends State<MainDrawerTraveler> {
                       fontFamily: 'RobotoCondensed',
                     ),
                   ),
-                  trailing: getUnRatedNumStream(),
+                  trailing: checker == true
+                      ? getUnRatedNumStream()
+                      : Container(
+                          width: 0,
+                        ),
                   onTap: () {
                     updateSeen();
                     Provider.of<UnRatedProvider>(context, listen: false)

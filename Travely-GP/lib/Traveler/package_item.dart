@@ -15,7 +15,8 @@ class PackageItem extends StatefulWidget {
       price,
       searchVal,
       currencyConverterVal,
-      originalCurrency;
+      originalCurrency,
+      actor;
 
   PackageItem({
     this.imageUrl,
@@ -28,7 +29,7 @@ class PackageItem extends StatefulWidget {
     this.searchVal,
     this.originalCurrency,
     this.currencyConverterVal,
-    this.categories,
+    this.categories, this.actor,
   });
 
   @override
@@ -37,7 +38,7 @@ class PackageItem extends StatefulWidget {
 
 class _PackageItemState extends State<PackageItem> {
   var organizerName;
-  var price;
+  double price;
 
   getOrganizerName() {
     var organizer = FirebaseFirestore.instance
@@ -56,7 +57,9 @@ class _PackageItemState extends State<PackageItem> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("$organizerName"),
-            SizedBox(height: 6,),
+            SizedBox(
+              height: 6,
+            ),
             Row(
               children: [
                 Icon(
@@ -66,10 +69,11 @@ class _PackageItemState extends State<PackageItem> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor,
-                      borderRadius: BorderRadius.all(Radius.circular(4)),),
+                    color: Theme.of(context).primaryColor,
+                    borderRadius: BorderRadius.all(Radius.circular(4)),
+                  ),
                   child: Text(
-                    "$rate",
+                    "${rate.toDouble()}",
                     style: TextStyle(
                         color: Colors.white, fontWeight: FontWeight.bold),
                   ),
@@ -92,6 +96,7 @@ class _PackageItemState extends State<PackageItem> {
           description: widget.description,
           price: widget.price,
           categories: widget.categories,
+          actor: widget.actor
         );
       }),
     ));
@@ -105,7 +110,7 @@ class _PackageItemState extends State<PackageItem> {
 
   @override
   Widget build(BuildContext context) {
-    price = widget.price * widget.currencyConverterVal;
+    price = widget.price.toDouble() * widget.currencyConverterVal.toDouble();
     return InkWell(
       onTap: () {
         showPackageDetails(context);
@@ -196,7 +201,7 @@ class _PackageItemState extends State<PackageItem> {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text(
-                      "${price.toStringAsFixed(2)} ${widget.originalCurrency}",
+                      "${price.toDouble().toStringAsFixed(2)} ${widget.originalCurrency}",
                       style: TextStyle(
                         fontSize: 18,
                       )),

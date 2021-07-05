@@ -66,6 +66,7 @@ class Auth with ChangeNotifier {
           "role": role,
           "dateOfBirth": dateOfBirth,
           "gender": gender,
+          "unRatedNum": 0,
           "imageUrl": imageUrl,
         });
         print("We did it");

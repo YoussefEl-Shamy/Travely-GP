@@ -50,58 +50,54 @@ class _UserUnitState extends State<UserUnit> {
       },
       child: Container(
         margin: EdgeInsets.all(10),
-        child: Row(
+        child: Column(
           children: [
             Row(
               children: [
+                SizedBox(
+                  width: 5,
+                ),
                 CircleAvatar(
                   backgroundColor: Colors.black38,
                   radius: 35,
                   backgroundImage: NetworkImage(widget.imageUrl),
                 ),
                 SizedBox(width: 15),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    widget.searchVal == ""
-                        ? Text(
-                            widget.username,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          )
-                        : SubstringHighlight(
-                            text: widget.username,
-                            term: widget.searchVal,
-                            textStyle: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                                color: Colors.black,
-                                fontFamily: 'Raleway'),
-                          ),
-                    SizedBox(height: 14),
-                    widget.searchVal == ""
-                        ? Text(widget.email)
-                        : SubstringHighlight(
-                            text: widget.email,
-                            term: widget.searchVal,
-                          ),
-                  ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      widget.searchVal == ""
+                          ? Text(
+                        widget.username,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      )
+                          : SubstringHighlight(
+                        text: widget.username,
+                        term: widget.searchVal,
+                        textStyle: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Colors.black,
+                            fontFamily: 'Raleway'),
+                      ),
+                      SizedBox(height: 14),
+                      widget.searchVal == ""
+                          ? Text(widget.email)
+                          : SubstringHighlight(
+                        text: widget.email,
+                        term: widget.searchVal,
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios,
                 ),
               ],
-            ),
-            Expanded(
-              child: Container(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Icon(
-                      Icons.arrow_forward_ios,
-                    ),
-                  ],
-                ),
-              ),
             ),
           ],
         ),

@@ -4,13 +4,16 @@ import 'package:provider/provider.dart';
 import 'package:travely/Providers/admin_email_pass_provider.dart';
 import 'package:travely/Registration%20form/registration_form.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:travely/Screens/view_all_packages_visitor.dart';
+import 'package:travely/Traveler/traveler_home_page.dart';
 
 class AuthForm extends StatefulWidget {
   final Function(String email, String password, String username, bool islogin,
       BuildContext ctx) submitFn;
   final bool isLoading;
+  final isFromPackageDetails;
 
-  AuthForm(this.submitFn, this.isLoading);
+  AuthForm(this.submitFn, this.isLoading, {this.isFromPackageDetails});
 
   @override
   _AuthFormState createState() => _AuthFormState();
@@ -192,13 +195,12 @@ class _AuthFormState extends State<AuthForm> {
                       _submit();
                     },
                   ),
+                SizedBox(height: 10),
                 if (!widget.isLoading)
-                  FlatButton(
-                    textColor: Colors.black,
-                    child: Text(_isLogin
-                        ? 'Create new Account '
-                        : 'I already have Account'),
-                    onPressed: () {
+                  ListTile(
+                    leading: Icon(Icons.person_add),
+                    title: Text('Create new Account'),
+                    onTap: () {
                       FocusScope.of(context).unfocus();
                       Navigator.of(context).push(
                         MaterialPageRoute(
@@ -208,7 +210,23 @@ class _AuthFormState extends State<AuthForm> {
                         ),
                       );
                     },
-                  )
+                  ),
+                widget.isFromPackageDetails
+                    ? Container()
+                    : ListTile(
+                        leading: Icon(Icons.list_alt_outlined),
+                        title: Text('View All Travel Packages'),
+                        onTap: () {
+                          FocusScope.of(context).unfocus();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) {
+                                return ViewPackagesVisitor();
+                              },
+                            ),
+                          );
+                        },
+                      )
               ],
             ),
           ),

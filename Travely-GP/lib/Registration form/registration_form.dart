@@ -1,9 +1,8 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'package:mailer/smtp_server.dart';
-import 'package:mailer/smtp_server/gmail.dart';
-import 'package:mailer/mailer.dart';
+import 'package:mailer2/mailer.dart';
+import 'package:toast/toast.dart';
 import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -188,8 +187,10 @@ class _RegistrationFormState extends State<RegistrationForm>
   }
 
   int code = 0;
+  bool _isSent = false;
 
   sendEmail() async {
+    print("Sending the email");
     var providerHeader = Provider.of<RegParam>(this.context, listen: false);
     if (providerHeader.travelerOrProvider == 1) {
       setState(() {
@@ -202,32 +203,70 @@ class _RegistrationFormState extends State<RegistrationForm>
       });
     }
 
+    print("Sending the email after check the role");
     if (validateInfo(role)) {
-      String username = 'travely.droid@gmail.com';
-      String password = '010a010B';
-      final smtpServer = gmail(username, password);
+      setState(() {
+        _isLoading = true;
+      });
+      var options = new GmailSmtpOptions()
+      ..username = 'travely.droid@gmail.com'
+      ..password = '010a010B010c';
+      var emailTransport = new SmtpTransport(options);
 
-      final message = Message()
-        ..from = Address(username, 'Travely')
-        ..recipients.add(eMailController.text.trim())
-        //..ccRecipients.addAll(['destCc1@example.com', 'destCc2@example.com'])
-        //..bccRecipients.add(Address('bccAddress@example.com'))
-        ..subject = 'Confirmation Message ${DateTime.now()}'
-        ..text = 'Thanks for joining us.\n confirmation code:'
-        ..html = "Thanks for joining us. confirmation code: <b>$code</b>";
+      var envelope = new Envelope()
+      ..from = 'travely.droid@gmail.com'
+      ..recipients.add(eMailController.text.trim().toLowerCase())
+      ..subject = 'Confirmation Message ${DateTime.now()}'
+      ..text = 'Thanks for joining us.\n confirmation code:'
+      ..html = "Thanks for joining us. confirmation code: <b>$code</b>";
 
-      try {
-        final sendReport = await send(message, smtpServer);
-        print('Message sent: ' + sendReport.toString());
-      } on MailerException catch (e) {
-        print('Message not sent.');
-        print(e);
-        for (var p in e.problems) {
-          print('Problem: ${p.code}: ${p.msg}');
-        }
-      }
+      await emailTransport.send(envelope).then((envelope) {
+      print('Email sent!');
+      _isSent = true;
+      print("The email should be sent");
+    }).catchError((e) {
+      print('Error occurred: $e');
+      _isSent = false;
+      setState(() {
+        _isLoading = false;
+      });
+      Toast.show("Sorry something went wrong, try again.", context,
+          duration: 4, gravity: Toast.CENTER);
+    });
     }
   }
+
+  /*sendEmail() async {
+    print("1");
+    var options = new GmailSmtpOptions()
+      ..username = 'travely.droid@gmail.com'
+      ..password = '010a010B010c';
+    print("2");
+    var emailTransport = new SmtpTransport(options);
+    print("3");
+    // Create our mail/envelope.
+    var envelope = new Envelope()
+      ..from = 'travely.droid@gmail.com'
+      ..recipients.add(eMailController.text.trim().toLowerCase())
+      ..subject = 'Confirmation Message ${DateTime.now()}'
+      ..text = 'Thanks for joining us.\n confirmation code:'
+      ..html = "Thanks for joining us. confirmation code: <b>$code</b>";
+    print("4");
+    // Email it.
+    await emailTransport.send(envelope).then((envelope) {
+      print('Email sent!');
+      _isSent = true;
+      print("The email should be sent");
+    }).catchError((e) {
+      print('Error occurred: $e');
+      _isSent = false;
+      setState(() {
+        _isLoading = false;
+      });
+      Toast.show("Sorry something went wrong, try again.", context,
+          duration: 4, gravity: Toast.CENTER);
+    });
+  }*/
 
   bool usernameChecker = false,
       emailChecker = false,
@@ -482,12 +521,24 @@ class _RegistrationFormState extends State<RegistrationForm>
                                             isVisible: usernameChecker,
                                           ),
                                           SizedBox(height: 15),
-                                          MyTextField(
-                                            eMailController,
-                                            "E-mail",
-                                            "Enter your E-mail",
-                                            Icon(Icons.mail),
-                                            TextInputType.emailAddress,
+                                          TextField(
+                                            controller: eMailController,
+                                            decoration: InputDecoration(
+                                                labelText: "E-mail",
+                                                hintText: "Enter your email.",
+                                                prefixIcon: Icon(Icons.email),
+                                                border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            60),
+                                                    borderSide: BorderSide(
+                                                        color:
+                                                            Colors.redAccent))),
+                                            keyboardType:
+                                                TextInputType.emailAddress,
+                                            autofillHints: [
+                                              AutofillHints.email
+                                            ],
                                           ),
                                           ErrorText(
                                             errorText: "Enter valid email",
@@ -574,16 +625,17 @@ class _RegistrationFormState extends State<RegistrationForm>
                                             onPressed: () {
                                               FocusScope.of(context).unfocus();
                                               generateCode();
-                                              setState(() {
-                                                _isLoading = true;
-                                              });
                                               sendEmail().then(
                                                 (_) {
-                                                  goToConfirmationScreen(
-                                                      context);
-                                                  setState(() {
-                                                    _isLoading = false;
-                                                  });
+                                                  print("_isSent: $_isSent");
+                                                  if (_isSent) {
+                                                    print("_isSent: $_isSent");
+                                                    goToConfirmationScreen(
+                                                        context);
+                                                    setState(() {
+                                                      _isLoading = false;
+                                                    });
+                                                  }
                                                 },
                                               );
                                             },

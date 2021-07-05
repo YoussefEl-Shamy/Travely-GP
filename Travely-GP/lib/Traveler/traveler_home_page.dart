@@ -30,6 +30,39 @@ class _FirstPageState extends State<FirstPage> {
   var packagesIDs = [];
   var finishedPackagesIDs = [];
 
+  String initValPackageTypes = 'None';
+  List<String> packageTypes = [
+    "None",
+    "Foreign Trip",
+    "Local Trip",
+    "Cure Trip",
+    "Cruise",
+    "Safari",
+    "Study Trip",
+    "Mountain Trip",
+    "Journey Overland"
+  ];
+
+  String initValCurrencies = 'None';
+  List<String> currencies = ["None", '£ L.E', '\$ US', '€ EU'];
+
+  String initValPriceRanges = 'None';
+  List<String> priceRanges = [
+    "None",
+    "Less that 10",
+    "10 - 50",
+    "50 - 100",
+    "100 - 200",
+    "200 - 300",
+    "300 - 500",
+    "500 - 700",
+    "700 - 1000",
+    "1000 - 1200",
+    "1200 - 1500",
+    "1500 - 2000",
+    "2000 to up"
+  ];
+
   getPackagesIDs() async {
     await FirebaseFirestore.instance
         .collection('travelersPackages')
@@ -248,6 +281,175 @@ class _FirstPageState extends State<FirstPage> {
         .setUnRatedNum(unRatedNum);
   }
 
+  showFiltersDialog() {
+    showDialog(
+      context: this.context,
+      builder: (ctx) => AlertDialog(
+        title: Text("Packages Filter"),
+        content: Container(
+          height: 200,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Text("Price Range"),
+                  Text("Currency"),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Theme.of(context).accentColor),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: DropdownButton<String>(
+                      dropdownColor: Colors.white,
+                      value: initValPriceRanges,
+                      icon: Icon(
+                        Icons.arrow_downward,
+                        color: Theme.of(context).accentColor,
+                      ),
+                      iconSize: 24,
+                      elevation: 16,
+                      style: TextStyle(
+                        color: Colors.deepOrange,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 17,
+                      ),
+                      underline: Container(
+                        height: 2,
+                        color: Theme.of(context).accentColor,
+                      ),
+                      onChanged: (String newValue) {
+                        setState(() {
+                          initValPriceRanges = newValue;
+                          print(initValPriceRanges);
+                          resultsCounter = 0;
+                        });
+                        Navigator.of(context).pop();
+                        showFiltersDialog();
+                      },
+                      items: priceRanges
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Theme.of(context).accentColor),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: DropdownButton<String>(
+                      dropdownColor: Colors.white,
+                      value: initValCurrencies,
+                      icon: Icon(
+                        Icons.arrow_downward,
+                        color: Theme.of(context).accentColor,
+                      ),
+                      iconSize: 24,
+                      elevation: 16,
+                      style: TextStyle(
+                        color: Colors.deepOrange,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 17,
+                      ),
+                      underline: Container(
+                        height: 2,
+                        color: Theme.of(context).accentColor,
+                      ),
+                      onChanged: (String newValue) {
+                        setState(() {
+                          initValCurrencies = newValue;
+                          print(initValCurrencies);
+                          resultsCounter = 0;
+                        });
+                        Navigator.of(context).pop();
+                        showFiltersDialog();
+                      },
+                      items: currencies
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 30),
+              Text("Category"),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Theme.of(context).accentColor),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: DropdownButton<String>(
+                  dropdownColor: Colors.white,
+                  value: initValPackageTypes,
+                  icon: Icon(
+                    Icons.arrow_downward,
+                    color: Theme.of(context).accentColor,
+                  ),
+                  iconSize: 24,
+                  elevation: 16,
+                  style: TextStyle(
+                    color: Colors.deepOrange,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17,
+                  ),
+                  underline: Container(
+                    height: 2,
+                    color: Theme.of(context).accentColor,
+                  ),
+                  onChanged: (String newValue) {
+                    setState(() {
+                      initValPackageTypes = newValue;
+                      print(initValPackageTypes);
+                      resultsCounter = 0;
+                    });
+                    Navigator.of(context).pop();
+                    showFiltersDialog();
+                  },
+                  items: packageTypes
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          FlatButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+            child: Text(
+              "Done",
+              style:
+                  TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -270,37 +472,46 @@ class _FirstPageState extends State<FirstPage> {
     rememberMePreference.setBool("rememberMe", false);
   }
 
-  getTravelerImage() {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
-      child: StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection("travelers")
-            .doc(FirebaseAuth.instance.currentUser.uid)
-            .snapshots(),
-        builder: (ctx, snapShot) {
-          if (snapShot.connectionState == ConnectionState.waiting)
-            return Center(
-              child: CircularProgressIndicator(),
-            );
+  double firstBoundary, lastBoundary;
 
-          var data = snapShot.data;
-          imageUrl = data['imageUrl'];
-          return InkWell(
-            borderRadius: BorderRadius.circular(300),
-            child: CircleAvatar(
-              backgroundImage: NetworkImage(imageUrl),
-              backgroundColor: Colors.grey,
-            ),
-            onTap: () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (_) {
-                return TravelerProfile();
-              }));
-            },
-          );
-        },
-      ),
-    );
+  getBoundariesOfPriceRange() {
+    if (initValPriceRanges != "None") {
+      if (initValPriceRanges == "Less that 10") {
+        lastBoundary = 10;
+      } else if (initValPriceRanges == "10 - 50") {
+        firstBoundary = 10;
+        lastBoundary = 50;
+      } else if (initValPriceRanges == "50 - 100") {
+        firstBoundary = 50;
+        lastBoundary = 100;
+      } else if (initValPriceRanges == "100 - 200") {
+        firstBoundary = 100;
+        lastBoundary = 200;
+      } else if (initValPriceRanges == "200 - 300") {
+        firstBoundary = 200;
+        lastBoundary = 300;
+      } else if (initValPriceRanges == "300 - 500") {
+        firstBoundary = 300;
+        lastBoundary = 500;
+      } else if (initValPriceRanges == "500 - 700") {
+        firstBoundary = 500;
+        lastBoundary = 700;
+      } else if (initValPriceRanges == "700 - 1000") {
+        firstBoundary = 700;
+        lastBoundary = 1000;
+      } else if (initValPriceRanges == "1000 - 1200") {
+        firstBoundary = 1000;
+        lastBoundary = 1200;
+      } else if (initValPriceRanges == "1200 - 1500") {
+        firstBoundary = 1200;
+        lastBoundary = 1500;
+      } else if (initValPriceRanges == "1500 - 2000") {
+        firstBoundary = 1500;
+        lastBoundary = 2000;
+      } else if (initValPriceRanges == "2000 to up") {
+        firstBoundary = 2000;
+      }
+    }
   }
 
   @override
@@ -359,7 +570,12 @@ class _FirstPageState extends State<FirstPage> {
                             },
                           )
                     : Container(),
-                sProviderFalse.isSearching ? Container() : getTravelerImage(),
+                IconButton(
+                  onPressed: () {
+                    showFiltersDialog();
+                  },
+                  icon: Icon(Icons.filter_list_alt),
+                )
               ],
             ),
             body: _currentIndex == 1
@@ -371,6 +587,7 @@ class _FirstPageState extends State<FirstPage> {
                             .orderBy("startDate", descending: true)
                             .snapshots(),
                         builder: (ctx, snapShot) {
+                          getBoundariesOfPriceRange();
                           if (snapShot.connectionState ==
                               ConnectionState.waiting) {
                             return Center(child: CircularProgressIndicator());
@@ -386,22 +603,656 @@ class _FirstPageState extends State<FirstPage> {
                                       .toString()
                                       .toLowerCase()
                                       .contains(searchVal.toLowerCase())) {
-                                print("Results Counter: $resultsCounter");
-                                return PackageItem(
-                                  packageId: docs[index]['packageId'],
-                                  organizerId: docs[index]['organizerId'],
-                                  packageName: docs[index]['packageName'],
-                                  imageUrl: docs[index]['images'][0],
-                                  description: docs[index]['description'],
-                                  price: docs[index]['price'],
-                                  originalCurrency: docs[index]
+                                var realPrice0 = docs[index]['price'] *
+                                    docs[index]['currencyConverterVal'];
+                                String realPriceString =
+                                    realPrice0.toStringAsFixed(2);
+                                var realPrice =
+                                    double.parse(realPriceString);
+                                if (initValCurrencies != "None" &&
+                                    initValPriceRanges == "None" &&
+                                    initValPackageTypes == "None") {
+                                  if (docs[index]['originalCurrency']
+                                          .toString()
+                                          .toLowerCase() ==
+                                      initValCurrencies.toLowerCase()) {
+                                    print("Results Counter: $resultsCounter");
+                                    return PackageItem(
+                                      packageId: docs[index]['packageId'],
+                                      organizerId: docs[index]['organizerId'],
+                                      packageName: docs[index]['packageName'],
+                                      imageUrl: docs[index]['images'][0],
+                                      description: docs[index]['description'],
+                                      price: docs[index]['price'],
+                                      originalCurrency: docs[index]
+                                          ['originalCurrency'],
+                                      currencyConverterVal: docs[index]
+                                          ['currencyConverterVal'],
+                                      index: index,
+                                      searchVal: searchVal,
+                                      categories: docs[index]['categories'],
+                                    );
+                                  } else {
+                                    if (resultsCounter <= docs.length)
+                                      resultsCounter++;
+
+                                    if (resultsCounter == docs.length)
+                                      return Center(
+                                        child: Container(
+                                          padding: EdgeInsets.only(top: 35),
+                                          child: Text("No results found"),
+                                        ),
+                                      );
+                                    return Container();
+                                  }
+                                } else if (initValPriceRanges != "None" &&
+                                    initValCurrencies == "None" &&
+                                    initValPackageTypes == "None") {
+                                  print("firstBoundary: $firstBoundary");
+                                  print("lastBoundary: $lastBoundary");
+                                  print("realPrice: $realPrice");
+                                  if (firstBoundary == null &&
+                                      lastBoundary != null) {
+                                    if (realPrice <= lastBoundary) {
+                                      return PackageItem(
+                                        packageId: docs[index]['packageId'],
+                                        organizerId: docs[index]['organizerId'],
+                                        packageName: docs[index]['packageName'],
+                                        imageUrl: docs[index]['images'][0],
+                                        description: docs[index]['description'],
+                                        price: docs[index]['price'],
+                                        originalCurrency: docs[index]
+                                            ['originalCurrency'],
+                                        currencyConverterVal: docs[index]
+                                            ['currencyConverterVal'],
+                                        index: index,
+                                        searchVal: searchVal,
+                                        categories: docs[index]['categories'],
+                                      );
+                                    } else {
+                                      if (resultsCounter <= docs.length)
+                                        resultsCounter++;
+
+                                      if (resultsCounter == docs.length)
+                                        return Center(
+                                          child: Container(
+                                            padding: EdgeInsets.only(top: 35),
+                                            child: Text("No results found"),
+                                          ),
+                                        );
+                                      return Container();
+                                    }
+                                  } else if (firstBoundary != null &&
+                                      lastBoundary != null) {
+                                    if (firstBoundary <= realPrice &&
+                                        realPrice <= lastBoundary) {
+                                      return PackageItem(
+                                        packageId: docs[index]['packageId'],
+                                        organizerId: docs[index]['organizerId'],
+                                        packageName: docs[index]['packageName'],
+                                        imageUrl: docs[index]['images'][0],
+                                        description: docs[index]['description'],
+                                        price: docs[index]['price'],
+                                        originalCurrency: docs[index]
+                                            ['originalCurrency'],
+                                        currencyConverterVal: docs[index]
+                                            ['currencyConverterVal'],
+                                        index: index,
+                                        searchVal: searchVal,
+                                        categories: docs[index]['categories'],
+                                      );
+                                    } else {
+                                      if (resultsCounter <= docs.length)
+                                        resultsCounter++;
+
+                                      if (resultsCounter == docs.length)
+                                        return Center(
+                                          child: Container(
+                                            padding: EdgeInsets.only(top: 35),
+                                            child: Text("No results found"),
+                                          ),
+                                        );
+                                      return Container();
+                                    }
+                                  } else if (firstBoundary != null &&
+                                      lastBoundary == null) {
+                                    if (firstBoundary >= realPrice) {
+                                      return PackageItem(
+                                        packageId: docs[index]['packageId'],
+                                        organizerId: docs[index]['organizerId'],
+                                        packageName: docs[index]['packageName'],
+                                        imageUrl: docs[index]['images'][0],
+                                        description: docs[index]['description'],
+                                        price: docs[index]['price'],
+                                        originalCurrency: docs[index]
+                                            ['originalCurrency'],
+                                        currencyConverterVal: docs[index]
+                                            ['currencyConverterVal'],
+                                        index: index,
+                                        searchVal: searchVal,
+                                        categories: docs[index]['categories'],
+                                      );
+                                    } else {
+                                      if (resultsCounter <= docs.length)
+                                        resultsCounter++;
+
+                                      if (resultsCounter == docs.length)
+                                        return Center(
+                                          child: Container(
+                                            padding: EdgeInsets.only(top: 35),
+                                            child: Text("No results found"),
+                                          ),
+                                        );
+                                      return Container();
+                                    }
+                                  } else {
+                                    if (resultsCounter <= docs.length)
+                                      resultsCounter++;
+
+                                    if (resultsCounter == docs.length)
+                                      return Center(
+                                        child: Container(
+                                          padding: EdgeInsets.only(top: 35),
+                                          child: Text("No results found"),
+                                        ),
+                                      );
+                                    return Container();
+                                  }
+                                } else if (initValPackageTypes != "None" &&
+                                    initValPriceRanges == "None" &&
+                                    initValCurrencies == "None") {
+                                  if (docs[index]["categories"]
+                                      .contains(initValPackageTypes)) {
+                                    return PackageItem(
+                                      packageId: docs[index]['packageId'],
+                                      organizerId: docs[index]['organizerId'],
+                                      packageName: docs[index]['packageName'],
+                                      imageUrl: docs[index]['images'][0],
+                                      description: docs[index]['description'],
+                                      price: docs[index]['price'],
+                                      originalCurrency: docs[index]
+                                          ['originalCurrency'],
+                                      currencyConverterVal: docs[index]
+                                          ['currencyConverterVal'],
+                                      index: index,
+                                      searchVal: searchVal,
+                                      categories: docs[index]['categories'],
+                                    );
+                                  } else {
+                                    if (resultsCounter <= docs.length)
+                                      resultsCounter++;
+
+                                    if (resultsCounter == docs.length)
+                                      return Center(
+                                        child: Container(
+                                          padding: EdgeInsets.only(top: 35),
+                                          child: Text("No results found"),
+                                        ),
+                                      );
+                                    return Container();
+                                  }
+                                } else if (initValCurrencies != "None" &&
+                                    initValPriceRanges != "None" &&
+                                    initValPackageTypes != "None") {
+                                  if (docs[index]['originalCurrency']
+                                              .toString()
+                                              .toLowerCase() ==
+                                          initValCurrencies.toLowerCase() &&
+                                      docs[index]["categories"]
+                                          .contains(initValPackageTypes)) {
+                                    if (firstBoundary == null &&
+                                        lastBoundary != null) {
+                                      if (realPrice <= lastBoundary) {
+                                        return PackageItem(
+                                          packageId: docs[index]['packageId'],
+                                          organizerId: docs[index]
+                                              ['organizerId'],
+                                          packageName: docs[index]
+                                              ['packageName'],
+                                          imageUrl: docs[index]['images'][0],
+                                          description: docs[index]
+                                              ['description'],
+                                          price: docs[index]['price'],
+                                          originalCurrency: docs[index]
+                                              ['originalCurrency'],
+                                          currencyConverterVal: docs[index]
+                                              ['currencyConverterVal'],
+                                          index: index,
+                                          searchVal: searchVal,
+                                          categories: docs[index]['categories'],
+                                        );
+                                      } else {
+                                        if (resultsCounter <= docs.length)
+                                          resultsCounter++;
+
+                                        if (resultsCounter == docs.length)
+                                          return Center(
+                                            child: Container(
+                                              padding: EdgeInsets.only(top: 35),
+                                              child: Text("No results found"),
+                                            ),
+                                          );
+                                        return Container();
+                                      }
+                                    } else if (firstBoundary != null &&
+                                        lastBoundary != null) {
+                                      if (firstBoundary <= realPrice &&
+                                          realPrice <= lastBoundary) {
+                                        return PackageItem(
+                                          packageId: docs[index]['packageId'],
+                                          organizerId: docs[index]
+                                              ['organizerId'],
+                                          packageName: docs[index]
+                                              ['packageName'],
+                                          imageUrl: docs[index]['images'][0],
+                                          description: docs[index]
+                                              ['description'],
+                                          price: docs[index]['price'],
+                                          originalCurrency: docs[index]
+                                              ['originalCurrency'],
+                                          currencyConverterVal: docs[index]
+                                              ['currencyConverterVal'],
+                                          index: index,
+                                          searchVal: searchVal,
+                                          categories: docs[index]['categories'],
+                                        );
+                                      } else {
+                                        if (resultsCounter <= docs.length)
+                                          resultsCounter++;
+
+                                        if (resultsCounter == docs.length)
+                                          return Center(
+                                            child: Container(
+                                              padding: EdgeInsets.only(top: 35),
+                                              child: Text("No results found"),
+                                            ),
+                                          );
+                                        return Container();
+                                      }
+                                    } else if (firstBoundary != null &&
+                                        lastBoundary == null) {
+                                      if (firstBoundary >= realPrice) {
+                                        return PackageItem(
+                                          packageId: docs[index]['packageId'],
+                                          organizerId: docs[index]
+                                              ['organizerId'],
+                                          packageName: docs[index]
+                                              ['packageName'],
+                                          imageUrl: docs[index]['images'][0],
+                                          description: docs[index]
+                                              ['description'],
+                                          price: docs[index]['price'],
+                                          originalCurrency: docs[index]
+                                              ['originalCurrency'],
+                                          currencyConverterVal: docs[index]
+                                              ['currencyConverterVal'],
+                                          index: index,
+                                          searchVal: searchVal,
+                                          categories: docs[index]['categories'],
+                                        );
+                                      } else {
+                                        if (resultsCounter <= docs.length)
+                                          resultsCounter++;
+
+                                        if (resultsCounter == docs.length)
+                                          return Center(
+                                            child: Container(
+                                              padding: EdgeInsets.only(top: 35),
+                                              child: Text("No results found"),
+                                            ),
+                                          );
+                                        return Container();
+                                      }
+                                    } else {
+                                      if (resultsCounter <= docs.length)
+                                        resultsCounter++;
+
+                                      if (resultsCounter == docs.length)
+                                        return Center(
+                                          child: Container(
+                                            padding: EdgeInsets.only(top: 35),
+                                            child: Text("No results found"),
+                                          ),
+                                        );
+                                      return Container();
+                                    }
+                                  } else {
+                                    if (resultsCounter <= docs.length)
+                                      resultsCounter++;
+
+                                    if (resultsCounter == docs.length)
+                                      return Center(
+                                        child: Container(
+                                          padding: EdgeInsets.only(top: 35),
+                                          child: Text("No results found"),
+                                        ),
+                                      );
+                                    return Container();
+                                  }
+                                } else if (initValCurrencies != "None" &&
+                                    initValPriceRanges != "None" &&
+                                    initValPackageTypes == "None") {
+                                  if (docs[index]['originalCurrency']
+                                          .toString()
+                                          .toLowerCase() ==
+                                      initValCurrencies.toLowerCase()) {
+                                    if (firstBoundary == null &&
+                                        lastBoundary != null) {
+                                      if (realPrice <= lastBoundary) {
+                                        return PackageItem(
+                                          packageId: docs[index]['packageId'],
+                                          organizerId: docs[index]
+                                              ['organizerId'],
+                                          packageName: docs[index]
+                                              ['packageName'],
+                                          imageUrl: docs[index]['images'][0],
+                                          description: docs[index]
+                                              ['description'],
+                                          price: docs[index]['price'],
+                                          originalCurrency: docs[index]
+                                              ['originalCurrency'],
+                                          currencyConverterVal: docs[index]
+                                              ['currencyConverterVal'],
+                                          index: index,
+                                          searchVal: searchVal,
+                                          categories: docs[index]['categories'],
+                                        );
+                                      } else {
+                                        if (resultsCounter <= docs.length)
+                                          resultsCounter++;
+
+                                        if (resultsCounter == docs.length)
+                                          return Center(
+                                            child: Container(
+                                              padding: EdgeInsets.only(top: 35),
+                                              child: Text("No results found"),
+                                            ),
+                                          );
+                                        return Container();
+                                      }
+                                    } else if (firstBoundary != null &&
+                                        lastBoundary != null) {
+                                      if (firstBoundary <= realPrice &&
+                                          realPrice <= lastBoundary) {
+                                        return PackageItem(
+                                          packageId: docs[index]['packageId'],
+                                          organizerId: docs[index]
+                                              ['organizerId'],
+                                          packageName: docs[index]
+                                              ['packageName'],
+                                          imageUrl: docs[index]['images'][0],
+                                          description: docs[index]
+                                              ['description'],
+                                          price: docs[index]['price'],
+                                          originalCurrency: docs[index]
+                                              ['originalCurrency'],
+                                          currencyConverterVal: docs[index]
+                                              ['currencyConverterVal'],
+                                          index: index,
+                                          searchVal: searchVal,
+                                          categories: docs[index]['categories'],
+                                        );
+                                      } else {
+                                        if (resultsCounter <= docs.length)
+                                          resultsCounter++;
+
+                                        if (resultsCounter == docs.length)
+                                          return Center(
+                                            child: Container(
+                                              padding: EdgeInsets.only(top: 35),
+                                              child: Text("No results found"),
+                                            ),
+                                          );
+                                        return Container();
+                                      }
+                                    } else if (firstBoundary != null &&
+                                        lastBoundary == null) {
+                                      if (firstBoundary >= realPrice) {
+                                        return PackageItem(
+                                          packageId: docs[index]['packageId'],
+                                          organizerId: docs[index]
+                                              ['organizerId'],
+                                          packageName: docs[index]
+                                              ['packageName'],
+                                          imageUrl: docs[index]['images'][0],
+                                          description: docs[index]
+                                              ['description'],
+                                          price: docs[index]['price'],
+                                          originalCurrency: docs[index]
+                                              ['originalCurrency'],
+                                          currencyConverterVal: docs[index]
+                                              ['currencyConverterVal'],
+                                          index: index,
+                                          searchVal: searchVal,
+                                          categories: docs[index]['categories'],
+                                        );
+                                      } else {
+                                        if (resultsCounter <= docs.length)
+                                          resultsCounter++;
+
+                                        if (resultsCounter == docs.length)
+                                          return Center(
+                                            child: Container(
+                                              padding: EdgeInsets.only(top: 35),
+                                              child: Text("No results found"),
+                                            ),
+                                          );
+                                        return Container();
+                                      }
+                                    } else {
+                                      if (resultsCounter <= docs.length)
+                                        resultsCounter++;
+
+                                      if (resultsCounter == docs.length)
+                                        return Center(
+                                          child: Container(
+                                            padding: EdgeInsets.only(top: 35),
+                                            child: Text("No results found"),
+                                          ),
+                                        );
+                                      return Container();
+                                    }
+                                  } else {
+                                    if (resultsCounter <= docs.length)
+                                      resultsCounter++;
+
+                                    if (resultsCounter == docs.length)
+                                      return Center(
+                                        child: Container(
+                                          padding: EdgeInsets.only(top: 35),
+                                          child: Text("No results found"),
+                                        ),
+                                      );
+                                    return Container();
+                                  }
+                                } else if (initValCurrencies != "None" &&
+                                    initValPriceRanges == "None" &&
+                                    initValPackageTypes != "None") {
+                                  if (docs[index]["categories"]
+                                          .contains(initValPackageTypes) &&
+                                      docs[index]["originalCurrency"]
+                                              .toLowerCase() ==
+                                          initValCurrencies.toLowerCase()) {
+                                    return PackageItem(
+                                      packageId: docs[index]['packageId'],
+                                      organizerId: docs[index]['organizerId'],
+                                      packageName: docs[index]['packageName'],
+                                      imageUrl: docs[index]['images'][0],
+                                      description: docs[index]['description'],
+                                      price: docs[index]['price'],
+                                      originalCurrency: docs[index]
                                       ['originalCurrency'],
-                                  currencyConverterVal: docs[index]
+                                      currencyConverterVal: docs[index]
                                       ['currencyConverterVal'],
-                                  index: index,
-                                  searchVal: searchVal,
-                                  categories: docs[index]['categories'],
-                                );
+                                      index: index,
+                                      searchVal: searchVal,
+                                      categories: docs[index]['categories'],
+                                    );
+                                  } else {
+                                    if (resultsCounter <= docs.length)
+                                      resultsCounter++;
+
+                                    if (resultsCounter == docs.length)
+                                      return Center(
+                                        child: Container(
+                                          padding: EdgeInsets.only(top: 35),
+                                          child: Text("No results found"),
+                                        ),
+                                      );
+                                    return Container();
+                                  }
+                                } else if (initValCurrencies == "None" &&
+                                    initValPriceRanges != "None" &&
+                                    initValPackageTypes != "None") {
+                                  if (docs[index]["categories"]
+                                      .contains(initValPackageTypes)) {
+                                    if (firstBoundary == null &&
+                                        lastBoundary != null) {
+                                      if (realPrice <= lastBoundary) {
+                                        return PackageItem(
+                                          packageId: docs[index]['packageId'],
+                                          organizerId: docs[index]
+                                              ['organizerId'],
+                                          packageName: docs[index]
+                                              ['packageName'],
+                                          imageUrl: docs[index]['images'][0],
+                                          description: docs[index]
+                                              ['description'],
+                                          price: docs[index]['price'],
+                                          originalCurrency: docs[index]
+                                              ['originalCurrency'],
+                                          currencyConverterVal: docs[index]
+                                              ['currencyConverterVal'],
+                                          index: index,
+                                          searchVal: searchVal,
+                                          categories: docs[index]['categories'],
+                                          actor: "traveler",
+                                        );
+                                      } else {
+                                        if (resultsCounter <= docs.length)
+                                          resultsCounter++;
+
+                                        if (resultsCounter == docs.length)
+                                          return Center(
+                                            child: Container(
+                                              padding: EdgeInsets.only(top: 35),
+                                              child: Text("No results found"),
+                                            ),
+                                          );
+                                        return Container();
+                                      }
+                                    } else if (firstBoundary != null &&
+                                        lastBoundary != null) {
+                                      if (firstBoundary <= realPrice &&
+                                          realPrice <= lastBoundary) {
+                                        return PackageItem(
+                                          packageId: docs[index]['packageId'],
+                                          organizerId: docs[index]
+                                              ['organizerId'],
+                                          packageName: docs[index]
+                                              ['packageName'],
+                                          imageUrl: docs[index]['images'][0],
+                                          description: docs[index]
+                                              ['description'],
+                                          price: docs[index]['price'],
+                                          originalCurrency: docs[index]
+                                              ['originalCurrency'],
+                                          currencyConverterVal: docs[index]
+                                              ['currencyConverterVal'],
+                                          index: index,
+                                          searchVal: searchVal,
+                                          categories: docs[index]['categories'],
+                                        );
+                                      } else {
+                                        if (resultsCounter <= docs.length)
+                                          resultsCounter++;
+
+                                        if (resultsCounter == docs.length)
+                                          return Center(
+                                            child: Container(
+                                              padding: EdgeInsets.only(top: 35),
+                                              child: Text("No results found"),
+                                            ),
+                                          );
+                                        return Container();
+                                      }
+                                    } else if (firstBoundary != null &&
+                                        lastBoundary == null) {
+                                      if (firstBoundary >= realPrice) {
+                                        return PackageItem(
+                                          packageId: docs[index]['packageId'],
+                                          organizerId: docs[index]
+                                              ['organizerId'],
+                                          packageName: docs[index]
+                                              ['packageName'],
+                                          imageUrl: docs[index]['images'][0],
+                                          description: docs[index]
+                                              ['description'],
+                                          price: docs[index]['price'],
+                                          originalCurrency: docs[index]
+                                              ['originalCurrency'],
+                                          currencyConverterVal: docs[index]
+                                              ['currencyConverterVal'],
+                                          index: index,
+                                          searchVal: searchVal,
+                                          categories: docs[index]['categories'],
+                                        );
+                                      } else {
+                                        if (resultsCounter <= docs.length)
+                                          resultsCounter++;
+
+                                        if (resultsCounter == docs.length)
+                                          return Center(
+                                            child: Container(
+                                              padding: EdgeInsets.only(top: 35),
+                                              child: Text("No results found"),
+                                            ),
+                                          );
+                                        return Container();
+                                      }
+                                    } else {
+                                      if (resultsCounter <= docs.length)
+                                        resultsCounter++;
+
+                                      if (resultsCounter == docs.length)
+                                        return Center(
+                                          child: Container(
+                                            padding: EdgeInsets.only(top: 35),
+                                            child: Text("No results found"),
+                                          ),
+                                        );
+                                      return Container();
+                                    }
+                                  } else {
+                                    if (resultsCounter <= docs.length)
+                                      resultsCounter++;
+
+                                    if (resultsCounter == docs.length)
+                                      return Center(
+                                        child: Container(
+                                          padding: EdgeInsets.only(top: 35),
+                                          child: Text("No results found"),
+                                        ),
+                                      );
+                                    return Container();
+                                  }
+                                } else {
+                                  return PackageItem(
+                                    packageId: docs[index]['packageId'],
+                                    organizerId: docs[index]['organizerId'],
+                                    packageName: docs[index]['packageName'],
+                                    imageUrl: docs[index]['images'][0],
+                                    description: docs[index]['description'],
+                                    price: docs[index]['price'],
+                                    originalCurrency: docs[index]
+                                        ['originalCurrency'],
+                                    currencyConverterVal: docs[index]
+                                        ['currencyConverterVal'],
+                                    index: index,
+                                    searchVal: searchVal,
+                                    categories: docs[index]['categories'],
+                                  );
+                                }
                               } else {
                                 if (resultsCounter <= docs.length)
                                   resultsCounter++;
